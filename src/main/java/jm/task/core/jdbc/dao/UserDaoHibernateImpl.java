@@ -80,18 +80,8 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public List<User> getAllUsers() {
-        Transaction tx = null;
         try (Session session = sessionFactory.openSession()) {
-            tx = session.beginTransaction();
-            List<User> users = session.createQuery("from User").list();
-            tx.commit();
-            return users;
-        } catch (Exception e) {
-            if (tx != null) {
-                tx.rollback();
-            }
-            e.printStackTrace();
-            return null;
+            return session.createQuery("from User", User.class).getResultList();
         }
     }
 
@@ -100,9 +90,12 @@ public class UserDaoHibernateImpl implements UserDao {
         Transaction tx = null;
         try (Session session = sessionFactory.openSession()) {
             tx = session.beginTransaction();
-            session.createSQLQuery("TRUNCATE TABLE Users;").executeUpdate();
+            session.createSQLQuery("TRUNCATE TABLE users;").executeUpdate();
             tx.commit();
         } catch (Exception e) {
+            if (tx != null) {
+                tx.rollback();
+            }
             e.printStackTrace();
         }
     }
